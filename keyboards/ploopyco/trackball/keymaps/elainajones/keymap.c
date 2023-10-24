@@ -26,25 +26,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * 2    Right upper
      * 3    Right middle
      * 4    Left 
-     *
-     *
      */
 };
-
 
 //#undef PRINTF_SUPPORT_DECIMAL_SPECIFIERS
 //#define PRINTF_SUPPORT_DECIMAL_SPECIFIERS 1
 //#include "print.h"
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 float x_rem = 0.0;
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    // Change these to consts later once I get this dialed in.
-    const float cos_theta = cos(30*(M_PI/180));
-    const float sin_theta = sin(30*(M_PI/180));
-    //const float cos_theta = 0.978148; // cos(12)
-    //const float sin_theta = 0.207912; // sin(12)
+    const float cos_theta = 0.866025;
+    const float sin_theta = 0.500000;
     
     float x_new = mouse_report.x * cos_theta - mouse_report.y * sin_theta + x_rem;
 
