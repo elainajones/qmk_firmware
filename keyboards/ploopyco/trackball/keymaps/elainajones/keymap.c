@@ -27,11 +27,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // BTN4 = extra (previous page)
     // BTN5 = extra (next page)
     [0] = LAYOUT(
-        KC_BTN1, // Physical right-side lower (primary click)
-        KC_BTN3, // Physical right-side upper (middle click)
-        KC_BTN3, // Physical right-side middle scroll wheel (middle click)
-        KC_BTN2, // Physical left-side upper ("right"/secondary click)
-        KC_BTN4  // Physical left-side lower (extra)
+        MS_BTN1, // Physical right-side lower (primary click)
+        MS_BTN3, // Physical right-side upper (middle click)
+        MS_BTN3, // Physical right-side middle scroll wheel (middle click)
+        MS_BTN2, // Physical left-side upper ("right"/secondary click)
+        MS_BTN4  // Physical left-side lower (extra)
     ),
 };
 
