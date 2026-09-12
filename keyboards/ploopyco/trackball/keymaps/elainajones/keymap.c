@@ -36,6 +36,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 float x_rem = 0.0;
+float y_rem = 0.0;
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     /* Correction to vertical (up and down) mouse movements which
      * skew counterclockwise while horizontal (left and right) movements
@@ -55,16 +56,36 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     const float cos_theta = 0.866025;  // cos(30)
     const float sin_theta = 0.500000;  // sin(30)
 
-    // New X value after adjusting 30 degrees clockwise (with remaining value
-    // from previous report to compensate for int return type)
-    float x_new = mouse_report.x * cos_theta - mouse_report.y * sin_theta + x_rem;
+    if (mouse_report.x != 0) {
+        // New X value after adjusting 30 degrees clockwise (with remaining value
+        // from previous report to compensate for int return type)
+        float x_new = mouse_report.x * cos_theta - mouse_report.y * sin_theta + x_rem;
 
-    mouse_report.x = x_new;
-    // mouse_report.x is an integer but the new X value is a float
-    // so record the difference to apply for next time. This smoothes
-    // out horizontal (y=0) movements preventing "sticking" from partial
-    // values being disregarded.
-    x_rem = x_new - mouse_report.x;
+        mouse_report.x = x_new;
+        // mouse_report.x is an integer but the new X value is a float
+        // so record the difference to apply for next time. This smoothes
+        // out horizontal (y=0) movements preventing "sticking" from partial
+        // values being disregarded.
+        x_rem = x_new - mouse_report.x;
+    }
 
+    // Change mouse sensitivity separately for each axis.
+    // https://github.com/qmk/qmk_firmware/issues/26110
+    if (mouse_report.y != 0) {
+        // Increase up/down sensitivity by 0.1
+        // int8_t scaled = (int8_t)(mouse_report.y * 1.1);
+        float y_new = mouse_report.y * 1.1 + y_rem;
+        mouse_report.y = y_new;
+        y_rem = y_new - mouse_report.y;
+        // if (scaled == 0) {
+        //     // Integer rounding to preserve the direction
+        //     if (mouse_report.y > 0) {
+        //         scaled = 1;
+        //     } else {
+        //         scaled = -1;
+        //     }
+        // }
+        // mouse_report.y = scaled;
+    }
     return mouse_report;
 }
