@@ -36,10 +36,31 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 float x_rem = 0.0;
+float y_rem = 0.0;
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    /* Correction to vertical (up and down) mouse movements which
-     * skew counterclockwise while horizontal (left and right) movements
-     * remain level. This is a typical "rotate a point about the origin"
+    // 30 degrees clockwise
+    const float cos_theta = 0.866025;  // cos(30)
+    const float sin_theta = 0.500000;  // sin(30)
+
+    // Change mouse sensitivity separately for each axis.
+    // Example taken from the following GitHub issue
+    //https://github.com/qmk/qmk_firmware/issues/26110
+    if (mouse_report.y != 0) {
+        // Scale vertical sensitivity by 1.1 to account for limited mobility
+        // of the index finger for these motions relative to horizontal
+        // movements.
+        float y_new = mouse_report.y * 1.1 + y_rem;
+        mouse_report.y = y_new;
+        // mouse_report.y is an integer but the new Y value is a float
+        // so record the difference to apply for next time. This smoothes
+        // out vertical (x=0) movements preventing "sticking" from partial
+        // values being discarded.
+        y_rem = y_new - mouse_report.y;
+    }
+
+    /* Correction to vertical (up/down) mouse movements which skew
+     * counterclockwise while horizontal (left/right) movements remain
+     * level. This is a typical "rotate a point about the origin"
      * problem with the following corresponding formulas.
      *
      *     x1 = x0 * cos(theta) - y0 * sin(theta)
@@ -48,22 +69,17 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
      *  Since the adjustment is only needed for vertical movements, only
      *  the x value is modified to compensate for being off axis. This
      *  essentially makes the vertical and horizontal axis
-     *  non-perpendicular
+     *  non-perpendicular.
+     *
+     *  Who says you can't do floating point math on an AVR?
      */
-
-    // 30 degrees clockwise
-    const float cos_theta = 0.866025;  // cos(30)
-    const float sin_theta = 0.500000;  // sin(30)
-
-    // New X value after adjusting 30 degrees clockwise (with remaining value
-    // from previous report to compensate for int return type)
     float x_new = mouse_report.x * cos_theta - mouse_report.y * sin_theta + x_rem;
 
     mouse_report.x = x_new;
     // mouse_report.x is an integer but the new X value is a float
     // so record the difference to apply for next time. This smoothes
     // out horizontal (y=0) movements preventing "sticking" from partial
-    // values being disregarded.
+    // values being discarded.
     x_rem = x_new - mouse_report.x;
 
     return mouse_report;
