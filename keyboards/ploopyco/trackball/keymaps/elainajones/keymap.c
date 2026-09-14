@@ -31,7 +31,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         MS_BTN3, // Physical right-side upper (middle click)
         MS_BTN3, // Physical right-side middle scroll wheel (middle click)
         MS_BTN2, // Physical left-side upper ("right"/secondary click)
-        MS_BTN4  // Physical left-side lower (extra)
+        DPI_CONFIG  // Physical left-side lower (extra)
     ),
 };
 
